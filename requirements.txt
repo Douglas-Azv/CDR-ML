@@ -5,3 +5,4 @@ seaborn
 streamlit_authenticator
 pyyaml
 scikit-learn==0.24.1
+cython
