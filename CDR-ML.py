@@ -1,9 +1,29 @@
+import pandas as pd
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
 import streamlit as st
 import pickle
-import pandas as pd
 
-# Load the trained Random Forest model
-model = pickle.load(open('random_forest_model.pkl', 'rb'))
+# Carregar os dados reais
+df = pd.read_csv("Downloads/df_cdr_final.csv")
+data = df
+
+# Define independent and dependent variables
+X = df.drop(columns=['GCDR'])
+y = data['GCDR']
+
+# Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Train Random Forest model
+rf = RandomForestRegressor(n_estimators=100, random_state=42)
+rf.fit(X_train, y_train)
+y_pred_rf = rf.predict(X_test)
+
+# Salvar o modelo treinado
+with open('random_forest_model.pkl', 'wb') as f:
+    pickle.dump(rf, f)
 
 # Function to label the GCDR scores
 def lab(x):
@@ -48,7 +68,6 @@ input_data = [col1.slider(name, 0.0, 3.0, step=0.1) for name in inputs]
 input_df = pd.DataFrame([input_data], columns=inputs)
 
 # Prediction and label the result
-prediction = model.predict(input_df)
+prediction = rf.predict(input_df)
 labeled_prediction = lab(prediction[0])
 col2.write(f'CDR Prediction: {labeled_prediction}')
-
